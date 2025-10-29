@@ -6,6 +6,7 @@ import './App.css'
 function App() {
   const [from, setFrom] = useState<Currency>('JPY')
   const [to, setTo] = useState<Currency>('KRW')
+  const [amountFrom, setAmountFrom] = useState<string>('')
   const currencies: Currency[] = ['JPY', 'KRW', 'SGD']
 
   useEffect(() => {
@@ -18,12 +19,35 @@ function App() {
     setTo(from)
   }
 
+  const isAmountFromValid = (() => {
+    if (amountFrom.trim() === '') return false
+    const decimal = /^\d+(?:\.\d+)?$/
+    if (!decimal.test(amountFrom)) return false
+    const n = Number(amountFrom)
+    return Number.isFinite(n) && n >= 0
+  })()
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault()
+    const errors: string[] = []
+
+    if (from === to) errors.push('同じ通貨同士は変換できません')
+    if (!isAmountFromValid) errors.push('金額（変換前）が不正です')
+
+    if (errors.length) {
+      console.warn('Validation failed:', errors)
+      return
+    }
+
+    console.log('Validation succeeded. Ready to convert.', { from, to, amountFrom })
+  }
+
   return (
     <div className="converter">
       <h1 className="converter__title">為替レートアプリ</h1>
       <p className="converter__state">From: {from} → To: {to}</p>
 
-      <form className="converter__form" action="#">
+      <form className="converter__form" action="#" noValidate onSubmit={handleSubmit}>
         <div className="converter__grid">
           {/* Selects row */}
           <div className="converter__control">
@@ -55,12 +79,22 @@ function App() {
           </div>
 
           {/* Amounts row */}
-          <input className="converter__amount" type="text" placeholder="" />
+          <input
+            className="converter__amount"
+            name="amount-from"
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step="any"
+            placeholder=""
+            value={amountFrom}
+            onChange={(e) => setAmountFrom(e.target.value)}
+          />
           <div />
-          <input className="converter__amount" type="text" placeholder="" />
+          <input className="converter__amount" type="text" disabled={true} placeholder="" />
 
           {/* Submit row */}
-          <button className="converter__submit" type="submit">変換</button>
+          <button className="converter__submit" type="submit" disabled={!isAmountFromValid}>変換</button>
         </div>
       </form>
     </div>
