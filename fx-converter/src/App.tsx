@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { fetchRates } from './lib/exchange'
 import type { Currency } from './contents/currencies'
 
 import './App.css'
@@ -7,6 +8,8 @@ function App() {
   const [from, setFrom] = useState<Currency>('JPY')
   const [to, setTo] = useState<Currency>('KRW')
   const [amountFrom, setAmountFrom] = useState<string>('')
+  const [apiCheck, setApiCheck] = useState<string | null>(null)
+  const [apiChecking, setApiChecking] = useState<boolean>(false)
   const currencies: Currency[] = ['JPY', 'KRW', 'SGD']
 
   useEffect(() => {
@@ -18,6 +21,8 @@ function App() {
     setFrom(to)
     setTo(from)
   }
+  
+  
 
   const isAmountFromValid = (() => {
     if (amountFrom.trim() === '') return false
@@ -40,6 +45,20 @@ function App() {
     }
 
     console.log('Validation succeeded. Ready to convert.', { from, to, amountFrom })
+  }
+
+  const runApiCheck = async () => {
+    try {
+      setApiChecking(true)
+      setApiCheck(null)
+      const rates = await fetchRates(from)
+      setApiCheck(`OK: ${Object.keys(rates).length} rates`)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      setApiCheck(`NG: ${msg}`)
+    } finally {
+      setApiChecking(false)
+    }
   }
 
   return (
@@ -91,12 +110,18 @@ function App() {
             onChange={(e) => setAmountFrom(e.target.value)}
           />
           <div />
-          <input className="converter__amount" type="text" disabled={true} placeholder="" />
+          <input className="converter__amount" type="text" placeholder="" />
 
           {/* Submit row */}
           <button className="converter__submit" type="submit" disabled={!isAmountFromValid}>変換</button>
         </div>
       </form>
+      <div className="converter__apicheck">
+        <button type="button" onClick={runApiCheck} disabled={apiChecking}>APIチェック</button>
+        {apiCheck && (
+          <small role="status" aria-live="polite" style={{ marginLeft: 8 }}>{apiCheck}</small>
+        )}
+      </div>
     </div>
   )
 }
