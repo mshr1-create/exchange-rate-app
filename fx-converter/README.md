@@ -71,3 +71,38 @@ export default defineConfig([
   },
 ])
 ```
+
+## Exchange Rate API Setup
+
+This app can fetch exchange rates from an external API using Vite environment variables.
+
+1) Create a `.env` file (see `.env.example`) and set:
+
+```
+VITE_EXCHANGE_RATE_API_KEY=YOUR_API_KEY
+VITE_EXCHANGE_RATE_BASE_URL=https://v6.exchangerate-api.com/v6
+```
+
+Notes:
+- Vite only exposes vars prefixed with `VITE_` to the client.
+- `VITE_EXCHANGE_RATE_BASE_URL` should not include a trailing slash.
+
+2) Use the fetch helper in code:
+
+```
+import { fetchRates } from './src/lib/exchange'
+import type { Currency } from './src/contents/currencies'
+
+async function load(base: Currency) {
+  const rates = await fetchRates(base)
+  console.log(rates) // { USD: 0.00, EUR: 0.00, ... }
+}
+```
+
+3) URL shape used by the helper:
+
+```
+{VITE_EXCHANGE_RATE_BASE_URL}/{VITE_EXCHANGE_RATE_API_KEY}/latest/{base}
+```
+
+Basic error handling is included for missing env vars, network errors, non-OK status codes, and malformed responses.
