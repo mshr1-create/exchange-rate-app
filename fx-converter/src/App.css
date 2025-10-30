@@ -117,6 +117,13 @@
   font-weight: 700;
 }
 
+.converter__error {
+  grid-column: 1 / -1;
+  justify-self: center;
+  color: #d64545;
+  margin-top: -8px;
+}
+
 /* Responsive tweak */
 @media (max-width: 640px) {
   .converter__grid {

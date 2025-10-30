@@ -10,6 +10,8 @@ function App() {
   const [to, setTo] = useState<Currency>('KRW')
   const [amountFrom, setAmountFrom] = useState<string>('')
   const [amountTo, setAmountTo] = useState<string>('')
+  const [converting, setConverting] = useState<boolean>(false)
+  const [convertError, setConvertError] = useState<boolean>(false)
   const [apiCheck, setApiCheck] = useState<string | null>(null)
   const [apiChecking, setApiChecking] = useState<boolean>(false)
   const currencies: Currency[] = ['JPY', 'KRW', 'SGD']
@@ -20,6 +22,7 @@ function App() {
   }, [from, to])
 
   const swap = () => {
+    setConvertError(false)
     setFrom(to)
     setTo(from)
   }
@@ -44,17 +47,21 @@ function App() {
     if (errors.length) {
       console.warn('Validation failed:', errors)
       setAmountTo('')
+      setConvertError(false)
       return
     }
 
     // ② fetchRates(from) でレート取得
     try {
+      setConverting(true)
+      setConvertError(false)
       const rates = await fetchRates(from)
       // ③ to 通貨のレート抽出して amount * rate を計算
       const rate = rates[to]
       if (typeof rate !== 'number') {
         console.warn('Rate for target currency not found', { to, rates })
         setAmountTo('')
+        setConvertError(true)
         return
       }
       const n = Number(amountFrom)
@@ -65,6 +72,9 @@ function App() {
       const msg = err instanceof Error ? err.message : String(err)
       console.warn('Failed to fetch rates:', msg)
       setAmountTo('')
+      setConvertError(true)
+    } finally {
+      setConverting(false)
     }
   }
 
@@ -95,7 +105,7 @@ function App() {
               name="currencies-before"
               aria-label="変換前の通貨"
               value={from}
-              onChange={(e) => setFrom(e.target.value as Currency)}
+              onChange={(e) => { setFrom(e.target.value as Currency); setConvertError(false) }}
             >
               {currencies.map((c) => (
                 <option key={c} value={c}>{c}</option>
@@ -110,7 +120,7 @@ function App() {
               name="currencies-after"
               aria-label="変換後の通貨"
               value={to}
-              onChange={(e) => setTo(e.target.value as Currency)}
+              onChange={(e) => { setTo(e.target.value as Currency); setConvertError(false) }}
             >
               {currencies.map((c) => (
                 <option key={c} value={c}>{c}</option>
@@ -128,7 +138,7 @@ function App() {
             step="any"
             placeholder=""
             value={amountFrom}
-            onChange={(e) => setAmountFrom(e.target.value)}
+            onChange={(e) => { setAmountFrom(e.target.value); setConvertError(false) }}
           />
           <div />
           <input
@@ -142,7 +152,10 @@ function App() {
           />
 
           {/* Submit row */}
-          <button className="converter__submit" type="submit" disabled={!isAmountFromValid}>変換</button>
+          <button className="converter__submit" type="submit" disabled={!isAmountFromValid || converting}>{converting ? '取得中…' : '変換'}</button>
+          {convertError && (
+            <small className="converter__error" role="status" aria-live="polite">レート取得に失敗しました</small>
+          )}
         </div>
       </form>
       <div className="converter__apicheck">
