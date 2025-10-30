@@ -124,6 +124,13 @@
   margin-top: -8px;
 }
 
+.converter__warning {
+  grid-column: 1 / -1;
+  justify-self: center;
+  color: #b45309; /* amber-ish */
+  margin-top: -8px;
+}
+
 /* Responsive tweak */
 @media (max-width: 640px) {
   .converter__grid {
