@@ -8,6 +8,7 @@ function App() {
   const [from, setFrom] = useState<Currency>('JPY')
   const [to, setTo] = useState<Currency>('KRW')
   const [amountFrom, setAmountFrom] = useState<string>('')
+  const [amountTo, setAmountTo] = useState<string>('')
   const [apiCheck, setApiCheck] = useState<string | null>(null)
   const [apiChecking, setApiChecking] = useState<boolean>(false)
   const currencies: Currency[] = ['JPY', 'KRW', 'SGD']
@@ -32,7 +33,7 @@ function App() {
     return Number.isFinite(n) && n >= 0
   })()
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const errors: string[] = []
 
@@ -41,10 +42,30 @@ function App() {
 
     if (errors.length) {
       console.warn('Validation failed:', errors)
+      setAmountTo('')
       return
     }
 
-    console.log('Validation succeeded. Ready to convert.', { from, to, amountFrom })
+    // ② fetchRates(from) でレート取得
+    try {
+      const rates = await fetchRates(from)
+      // ③ to 通貨のレート抽出して amount * rate を計算
+      const rate = rates[to]
+      if (typeof rate !== 'number') {
+        console.warn('Rate for target currency not found', { to, rates })
+        setAmountTo('')
+        return
+      }
+      const n = Number(amountFrom)
+      // ⑤ 小数第2位で丸め（Math.round(n*100)/100）
+      const rounded = Math.round(n * rate * 100) / 100
+      // ④ 結果を「変換後フォーム」に表示
+      setAmountTo(String(rounded))
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn('Failed to fetch rates:', msg)
+      setAmountTo('')
+    }
   }
 
   const runApiCheck = async () => {
@@ -110,7 +131,15 @@ function App() {
             onChange={(e) => setAmountFrom(e.target.value)}
           />
           <div />
-          <input className="converter__amount" type="text" placeholder="" />
+          <input
+            className="converter__amount"
+            name="amount-to"
+            type="text"
+            inputMode="decimal"
+            placeholder=""
+            readOnly
+            value={amountTo}
+          />
 
           {/* Submit row */}
           <button className="converter__submit" type="submit" disabled={!isAmountFromValid}>変換</button>
