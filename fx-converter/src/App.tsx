@@ -37,6 +37,8 @@ function App() {
     return Number.isFinite(n) && n >= 0
   })()
 
+  const isSameCurrency = from === to
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const errors: string[] = []
@@ -152,7 +154,10 @@ function App() {
           />
 
           {/* Submit row */}
-          <button className="converter__submit" type="submit" disabled={!isAmountFromValid || converting}>{converting ? '取得中…' : '変換'}</button>
+          <button className="converter__submit" type="submit" disabled={!isAmountFromValid || converting || isSameCurrency}>{converting ? '取得中…' : '変換'}</button>
+          {isSameCurrency && (
+            <small className="converter__warning" role="status" aria-live="polite">同じ通貨同士は変換できません</small>
+          )}
           {convertError && (
             <small className="converter__error" role="status" aria-live="polite">レート取得に失敗しました</small>
           )}
