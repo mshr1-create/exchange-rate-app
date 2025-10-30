@@ -44,8 +44,14 @@
 /* ===== Converter layout ===== */
 .converter {
   max-width: 760px;
+  width: 100%;
   margin: 0 auto;
-  padding: 48px 24px 64px;
+  padding: 36px 64px 36px 36px;
+  box-sizing: border-box;
+  border: 2px solid #8ecae6; /* light blue border */
+  border-radius: 16px; /* 角無し */
+  background: transparent; /* 塗りつぶしなし */
+  overflow: hidden; /* はみ出し防止 */
 }
 
 .converter__title {
@@ -63,16 +69,42 @@
 
 .converter__grid {
   display: grid;
-  grid-template-columns: 1fr 80px 1fr;
+  grid-template-columns: minmax(0, 1fr) 80px minmax(0, 1fr);
   grid-auto-rows: min-content;
   align-items: center;
   gap: 24px 32px;
 }
 
+.converter__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500; /* 少し柔らかい太さ */
+  font-family: 
+    "Hiragino Maru Gothic ProN",
+    "Yu Gothic UI",
+    "Yu Gothic",
+    "Meiryo",
+    "Noto Sans JP",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  text-align: left;
+}
+
+.converter__control {
+  width: 100%;
+  min-width: 0; /* グリッド内でのオーバーフロー防止 */
+  display: flex;
+  flex-direction: column;
+}
+
 .converter__control select {
   width: 100%;
   height: 64px;
-  padding: 0 20px;
+  padding: 0 16px;
   font-size: 28px;
   line-height: 1;
   border-radius: 12px;
@@ -92,17 +124,19 @@
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  margin-left: 8px;
+  margin-left: 9px; /* グリッド内で中央配置 */
+  margin-top: 26px;
 }
 
 .converter__amount {
-  height: 56px;
+  height: 64px;
   padding: 0 16px;
   border-radius: 12px;
   border: 1px solid #dddddf;
   background: #e7e7ea;
   font-size: 20px;
   color: #111;
+  width: 88%;
 }
 
 .converter__submit {

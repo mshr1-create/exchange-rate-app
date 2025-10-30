@@ -12,8 +12,6 @@ function App() {
   const [amountTo, setAmountTo] = useState<string>('')
   const [converting, setConverting] = useState<boolean>(false)
   const [convertError, setConvertError] = useState<boolean>(false)
-  const [apiCheck, setApiCheck] = useState<string | null>(null)
-  const [apiChecking, setApiChecking] = useState<boolean>(false)
   const currencies: Currency[] = ['JPY', 'KRW', 'SGD']
 
   useEffect(() => {
@@ -80,20 +78,6 @@ function App() {
     }
   }
 
-  const runApiCheck = async () => {
-    try {
-      setApiChecking(true)
-      setApiCheck(null)
-      const rates = await fetchRates(from)
-      setApiCheck(`OK: ${Object.keys(rates).length} rates`)
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e)
-      setApiCheck(`NG: ${msg}`)
-    } finally {
-      setApiChecking(false)
-    }
-  }
-
   return (
     <div className="converter">
       <h1 className="converter__title">為替レートアプリ</h1>
@@ -103,7 +87,9 @@ function App() {
         <div className="converter__grid">
           {/* Selects row */}
           <div className="converter__control">
+            <label className="converter__label" htmlFor="currency-from">変換前の通貨</label>
             <select
+              id="currency-from"
               name="currencies-before"
               aria-label="変換前の通貨"
               value={from}
@@ -118,7 +104,9 @@ function App() {
           <button className="converter__swap" type="button" aria-label="通貨を入れ替え" onClick={swap}>⇄</button>
 
           <div className="converter__control">
+            <label className="converter__label" htmlFor="currency-to">変換後の通貨</label>
             <select
+              id="currency-to"
               name="currencies-after"
               aria-label="変換後の通貨"
               value={to}
@@ -131,27 +119,35 @@ function App() {
           </div>
 
           {/* Amounts row */}
-          <input
-            className="converter__amount"
-            name="amount-from"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="any"
-            placeholder=""
-            value={amountFrom}
-            onChange={(e) => { setAmountFrom(e.target.value); setConvertError(false) }}
-          />
+          <div className="converter__control">
+            <label className="converter__label" htmlFor="amount-from">金額（変換前）</label>
+            <input
+              id="amount-from"
+              className="converter__amount"
+              name="amount-from"
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step="any"
+              placeholder=""
+              value={amountFrom}
+              onChange={(e) => { setAmountFrom(e.target.value); setConvertError(false) }}
+            />
+          </div>
           <div />
-          <input
-            className="converter__amount"
-            name="amount-to"
-            type="text"
-            inputMode="decimal"
-            placeholder=""
-            readOnly
-            value={amountTo}
-          />
+          <div className="converter__control">
+            <label className="converter__label" htmlFor="amount-to">金額（変換後）</label>
+            <input
+              id="amount-to"
+              className="converter__amount"
+              name="amount-to"
+              type="text"
+              inputMode="decimal"
+              placeholder=""
+              readOnly
+              value={amountTo}
+            />
+          </div>
 
           {/* Submit row */}
           <button className="converter__submit" type="submit" disabled={!isAmountFromValid || converting || isSameCurrency}>{converting ? '取得中…' : '変換'}</button>
@@ -163,12 +159,6 @@ function App() {
           )}
         </div>
       </form>
-      <div className="converter__apicheck">
-        <button type="button" onClick={runApiCheck} disabled={apiChecking}>APIチェック</button>
-        {apiCheck && (
-          <small role="status" aria-live="polite" style={{ marginLeft: 8 }}>{apiCheck}</small>
-        )}
-      </div>
     </div>
   )
 }
