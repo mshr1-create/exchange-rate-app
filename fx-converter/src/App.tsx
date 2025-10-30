@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { fetchRates } from './lib/exchange'
+import { formatCurrency } from './lib/format'
 import type { Currency } from './contents/currencies'
 
 import './App.css'
@@ -57,10 +58,9 @@ function App() {
         return
       }
       const n = Number(amountFrom)
-      // ⑤ 小数第2位で丸め（Math.round(n*100)/100）
-      const rounded = Math.round(n * rate * 100) / 100
-      // ④ 結果を「変換後フォーム」に表示
-      setAmountTo(String(rounded))
+      // ④ 結果をロケール付き通貨表現で「変換後フォーム」に表示
+      const converted = n * rate
+      setAmountTo(formatCurrency(converted, to))
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.warn('Failed to fetch rates:', msg)
