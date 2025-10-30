@@ -67,19 +67,6 @@ VITE_EXCHANGE_RATE_BASE_URL=https://v6.exchangerate-api.com/v6
 
 ## よくあるつまずき
 
-- APIキー未設定
-  - 症状: 変換時にエラー、コンソールに `Missing VITE_EXCHANGE_RATE_API_KEY` と表示
-  - 対処: `fx-converter/.env` または `.env.local` に `VITE_EXCHANGE_RATE_API_KEY` を設定
-
-- BASE_URL未設定/不正
-  - 症状: `Missing VITE_EXCHANGE_RATE_BASE_URL` またはAPIエラー
-  - 対処: `VITE_EXCHANGE_RATE_BASE_URL` を `.env`/`.env.local` に設定（末尾スラッシュ無し）
-
-- CORSエラー
-  - 症状: ブラウザのコンソールで CORS 関連エラー
-  - 原因: 利用するプロバイダやネットワーク設定により、ブラウザからの直接アクセスがブロックされることがあります
-  - 対処: 公式ドキュメントのCORS設定を確認する、別プロバイダを利用する、またはバックエンド経由でプロキシする
-
 - 同一通貨の変換
   - 症状: ボタンが無効化、警告「同じ通貨同士は変換できません」
   - 対処: 変換前/変換後のいずれかを別の通貨に変更
